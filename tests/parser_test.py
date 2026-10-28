@@ -134,8 +134,8 @@ def test_parse_errors(tmp_path: Path, lines: list[str],
                       line_no: int, fragment: str) -> None:
     with pytest.raises(ParsingError) as exc:
         parse(tmp_path, lines)
-    assert exc.value._line_number == line_no
-    assert fragment in exc.value._msg
+    assert exc.value.line_number == line_no
+    assert fragment in exc.value.msg
 
 
 def test_missing_file() -> None:

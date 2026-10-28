@@ -2,20 +2,15 @@ from models.models import Zone, Connection, Graph, ZoneType, Role
 
 
 class ParsingError(Exception):
-    _line_number: int
-    _msg: str
-
     def __init__(self, line_number: int, msg: str) -> None:
-        self._line_number = line_number
-        self._msg = msg
+        self.line_number = line_number
+        self.msg = msg
         super().__init__(f"line {line_number}: {msg}")
 
 
 class Parser():
-    _file_path: str
-
     def __init__(self, file_path: str) -> None:
-        self._file_path = file_path
+        self.file_path = file_path
 
     @staticmethod
     def to_int(text: str, line_number: int, key: str) -> int:
@@ -47,7 +42,7 @@ class Parser():
         start: str = ""
         end: str = ""
 
-        with open(self._file_path, encoding="utf-8") as file:
+        with open(self.file_path, encoding="utf-8") as file:
             lines = file.readlines()
 
         for n, raw in enumerate(lines, start=1):

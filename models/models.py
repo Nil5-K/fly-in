@@ -55,3 +55,10 @@ class Graph():
     connections: list[Connection]
     start: str
     end: str
+
+
+@dataclass(frozen=True, slots=True)
+class Edge():
+    connection: Connection
+    target: str
+    cost: int = 1
