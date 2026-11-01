@@ -1,7 +1,7 @@
 import heapq
 
 from graph_index import GraphIndex
-from models.models import Edge, Graph
+from models import Edge, Graph
 
 
 class Heuristic():

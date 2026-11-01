@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from models.models import Role, ZoneType
+from models import Role, ZoneType
 from parser import Parser, ParsingError
 
 MAPS_DIR = Path(__file__).resolve().parent.parent / "maps"

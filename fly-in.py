@@ -2,8 +2,7 @@ import sys
 
 import pygame
 
-from gui.renderers.main_renderer import Renderer
-from gui.viewport import Viewport
+from gui import Renderer, Viewport
 from parser import Parser, ParsingError
 
 

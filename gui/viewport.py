@@ -1,4 +1,4 @@
-from models.models import Graph
+from models import Graph
 
 
 class Viewport():

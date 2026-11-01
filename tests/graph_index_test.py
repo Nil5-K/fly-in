@@ -1,6 +1,6 @@
 """Tests for the graph index."""
 from graph_index import GraphIndex
-from models.models import Connection, Graph, Role, Zone, ZoneType
+from models import Connection, Graph, Role, Zone, ZoneType
 
 
 def make_graph(

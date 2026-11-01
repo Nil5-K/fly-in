@@ -1,4 +1,4 @@
-from models.models import Zone, Connection, Graph, ZoneType, Role
+from models import Zone, Connection, Graph, ZoneType, Role
 
 
 class ParsingError(Exception):

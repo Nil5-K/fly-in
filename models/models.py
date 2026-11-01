@@ -62,3 +62,10 @@ class Edge():
     connection: Connection
     target: str
     cost: int = 1
+
+
+@dataclass(frozen=True, slots=True)
+class Step():
+    zone: str
+    t: int
+    edge: Edge | None = None

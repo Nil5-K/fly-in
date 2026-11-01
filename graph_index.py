@@ -1,4 +1,4 @@
-from models.models import Edge, Graph, ZoneType, Zone
+from models import Edge, Graph, ZoneType, Zone
 
 
 class GraphIndex():

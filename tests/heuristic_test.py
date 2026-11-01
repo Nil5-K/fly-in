@@ -5,7 +5,7 @@ import pytest
 
 from graph_index import GraphIndex
 from heuristic import Heuristic
-from models.models import Connection, Graph, Role, Zone, ZoneType
+from models import Connection, Graph, Role, Zone, ZoneType
 from parser import Parser
 
 MAPS_DIR = Path(__file__).resolve().parent.parent / "maps"

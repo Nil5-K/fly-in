@@ -1,14 +1,15 @@
 import pygame
 
 from gui.viewport import Viewport
-from models.models import Graph, Role
+from models import Graph, Role
 
 
 class MapRenderer():
-    def __init__(self, graph: Graph, viewport: Viewport) -> None:
+    def __init__(self, graph: Graph, viewport: Viewport,
+                 font: pygame.font.Font) -> None:
         self.graph = graph
         self.viewport = viewport
-        self.font = pygame.font.Font(None, 20)
+        self.font = font
 
     def draw(self, surface: pygame.Surface) -> None:
         self._draw_connections(surface)
@@ -23,6 +24,9 @@ class MapRenderer():
             pygame.draw.line(surface, (120, 120, 120), start, end)
 
     def _draw_zones(self, surface: pygame.Surface) -> None:
+        radius = max(6, min(20, round(self.viewport.scale * 0.3)))
+        placed: list[pygame.Rect] = []
+        labels: list[tuple[pygame.Surface, pygame.Rect]] = []
         for zone in self.graph.zones.values():
             pos = self.viewport.to_screen(zone.x, zone.y)
             try:
@@ -32,10 +36,16 @@ class MapRenderer():
                     color = pygame.Color("gray")
             except ValueError:
                 color = pygame.Color("gray")
-            radius = 20
             pygame.draw.circle(surface, color, pos, radius)
             if zone.role in (Role.START, Role.END):
                 pygame.draw.circle(surface, (255, 255, 255), pos, radius, 3)
             text = self.font.render(zone.name, True, (255, 255, 255))
-            rect = text.get_rect(midtop=(pos[0], pos[1] + radius + 4))
+            below = text.get_rect(midtop=(pos[0], pos[1] + radius + 4))
+            above = text.get_rect(midbottom=(pos[0], pos[1] - radius - 4))
+            for rect in (below, above):
+                if rect.collidelist(placed) == -1:
+                    placed.append(rect)
+                    labels.append((text, rect))
+                    break
+        for text, rect in labels:
             surface.blit(text, rect)
