@@ -10,23 +10,23 @@ class ReservationTable():
                                            int], int] = defaultdict(int)
         self.link_count: defaultdict[tuple[frozenset[str],
                                            int], int] = defaultdict(int)
-        self.zone_capacity: dict[str, int] = {}
-        self.link_capacity: dict[frozenset[str], int] = {}
+        self._zone_capacity: dict[str, int] = {}
+        self._link_capacity: dict[frozenset[str], int] = {}
 
         for conn in graph.connections:
-            self.link_capacity[conn.key] = conn.max_link_capacity
+            self._link_capacity[conn.key] = conn.max_link_capacity
 
         for name, zone in graph.zones.items():
-            self.zone_capacity[name] = zone.max_drones
-        self.zone_capacity[graph.start] = graph.nb_drones
-        self.zone_capacity[graph.end] = graph.nb_drones
+            self._zone_capacity[name] = zone.max_drones
+        self._zone_capacity[graph.start] = graph.nb_drones
+        self._zone_capacity[graph.end] = graph.nb_drones
 
     def zone_free(self, zone: str, t: int) -> bool:
-        return self.zone_count.get((zone, t), 0) < self.zone_capacity[zone]
+        return self.zone_count.get((zone, t), 0) < self._zone_capacity[zone]
 
     def link_free(self, edge: Edge, t: int) -> bool:
         key = edge.connection.key
-        capacity = self.link_capacity[key]
+        capacity = self._link_capacity[key]
         for turn in range(t + 1, t + edge.cost + 1):
             used = self.link_count.get((key, turn), 0)
             if used >= capacity:

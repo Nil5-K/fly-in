@@ -17,8 +17,8 @@ class TimeAStar():
         max_turn: int | None = None,
     ) -> None:
         self.graph = graph
-        self.index = index
-        self.heuristic = heuristic
+        self._index = index
+        self._heuristic = heuristic
         self.table = table
         start_h = heuristic.h(graph.start) or 0
         self.max_turn = (
@@ -28,7 +28,7 @@ class TimeAStar():
 
     def find_route(self) -> list[Step] | None:
         start: State = (self.graph.start, 0)
-        start_h = self.heuristic.h(self.graph.start)
+        start_h = self._heuristic.h(self.graph.start)
         if start_h is None:
             return None
         came_from: dict[State, tuple[State, Edge | None]] = {}
@@ -47,7 +47,7 @@ class TimeAStar():
         return None
 
     def _moves(self, zone: str, t: int) -> list[Edge]:
-        return [e for e in self.index[zone] if self.table.can_move(e, t)]
+        return [e for e in self._index[zone] if self.table.can_move(e, t)]
 
     def _push(
         self,
@@ -62,7 +62,7 @@ class TimeAStar():
             nxt: State = (zone, t + 1)
         else:
             nxt = (edge.target, t + edge.cost)
-        h = self.heuristic.h(nxt[0])
+        h = self._heuristic.h(nxt[0])
         if h is None or nxt in seen:
             return
         seen.add(nxt)

@@ -11,29 +11,29 @@ class PlanningError(Exception):
 class Planer():
     def __init__(self, graph: Graph, index: dict[str, list[Edge]],
                  heuristic: Heuristic, table: ReservationTable) -> None:
-        self.graph = graph
-        self.index = index
-        self.heuristic = heuristic
-        self.table = table
+        self._graph = graph
+        self._index = index
+        self._heuristic = heuristic
+        self._table = table
 
     def plan(self) -> list[list[Step]]:
         routes = []
-        for drone in range(1, self.graph.nb_drones + 1):
+        for drone in range(1, self._graph.nb_drones + 1):
             route = TimeAStar(
-                self.graph, self.index, self.heuristic, self.table
+                self._graph, self._index, self._heuristic, self._table
                 ).find_route()
             if route is None:
                 raise PlanningError(f"no route found for D{drone}")
-            self._reserver(route)
+            self._reserve(route)
             routes.append(route)
         return routes
 
-    def _reserver(self, route: list[Step]) -> None:
+    def _reserve(self, route: list[Step]) -> None:
         for step in route:
             if step.edge is None:
-                self.table.reserve_wait(step.zone, step.t)
+                self._table.reserve_wait(step.zone, step.t)
             else:
-                self.table.reserve_move(step.edge, step.t)
+                self._table.reserve_move(step.edge, step.t)
 
     @staticmethod
     def to_turns(routes: list[list[Step]]) -> list[str]:

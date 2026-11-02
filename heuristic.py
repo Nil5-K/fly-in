@@ -6,20 +6,20 @@ from models import Edge, Graph
 
 class Heuristic():
     def __init__(self, graph: Graph, index: dict[str, list[Edge]]) -> None:
-        self.graph = graph
-        self.index = index
-        self.dist = self.build_heuristic()
+        self._graph = graph
+        self._index = index
+        self._dist = self._build_heuristic()
 
-    def build_heuristic(self) -> dict[str, int]:
-        goal = self.graph.end
+    def _build_heuristic(self) -> dict[str, int]:
+        goal = self._graph.end
         dist: dict[str, int] = {goal: 0}
         pq: list[tuple[int, str]] = [(0, goal)]
         while pq:
             d, v = heapq.heappop(pq)
             if d > dist[v]:
                 continue
-            step = GraphIndex.move_cost(self.graph.zones[v])
-            for edge in self.index[v]:
+            step = GraphIndex.move_cost(self._graph.zones[v])
+            for edge in self._index[v]:
                 u = edge.target
                 new_d = d + step
                 if new_d < dist.get(u, new_d + 1):
@@ -28,4 +28,4 @@ class Heuristic():
         return dist
 
     def h(self, zone: str) -> int | None:
-        return self.dist.get(zone)
+        return self._dist.get(zone)

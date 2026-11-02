@@ -10,17 +10,17 @@ class ParsingError(Exception):
 
 class Parser():
     def __init__(self, file_path: str) -> None:
-        self.file_path = file_path
+        self._file_path = file_path
 
     @staticmethod
-    def to_int(text: str, line_number: int, key: str) -> int:
+    def _to_int(text: str, line_number: int, key: str) -> int:
         try:
             return int(text)
         except ValueError:
             raise ParsingError(line_number, f"{key}: bad number {text!r}")
 
     @staticmethod
-    def parse_meta(text: str, line_number: int) -> tuple[str, dict[str, str]]:
+    def _parse_meta(text: str, line_number: int) -> tuple[str, dict[str, str]]:
         if "[" not in text:
             return text.strip(), {}
         if not text.endswith("]"):
@@ -42,7 +42,7 @@ class Parser():
         start: str = ""
         end: str = ""
 
-        with open(self.file_path, encoding="utf-8") as file:
+        with open(self._file_path, encoding="utf-8") as file:
             lines = file.readlines()
 
         for n, raw in enumerate(lines, start=1):
@@ -51,12 +51,12 @@ class Parser():
                 continue
             key, _, rest = line.partition(":")
             key = key.strip()
-            core, meta = self.parse_meta(rest.strip(), n)
+            core, meta = self._parse_meta(rest.strip(), n)
 
             if nb_drones == 0 and key != "nb_drones":
                 raise ParsingError(n, "nb_drones not valid")
             if key == "nb_drones":
-                nb_drones = self.to_int(core, n, "nb_drones")
+                nb_drones = self._to_int(core, n, "nb_drones")
                 if nb_drones < 1:
                     raise ParsingError(n, "nb_drones is < 1")
             elif key in ("hub", "start_hub", "end_hub"):
@@ -72,8 +72,8 @@ class Parser():
                     raise ParsingError(n, "bad zone_type")
                 max_drones = 1
                 if "max_drones" in meta:
-                    max_drones = self.to_int(meta["max_drones"],
-                                             n, "max_drones")
+                    max_drones = self._to_int(meta["max_drones"],
+                                              n, "max_drones")
                     if max_drones < 1:
                         raise ParsingError(n, "max_drones is < 1")
                 role = Role.NORMAL
@@ -87,8 +87,8 @@ class Parser():
                     role, end = Role.END, name
                 zones[name] = Zone(
                     name=name,
-                    x=self.to_int(parts[1], n, "x"),
-                    y=self.to_int(parts[2], n, "y"),
+                    x=self._to_int(parts[1], n, "x"),
+                    y=self._to_int(parts[2], n, "y"),
                     role=role,
                     zone_type=zone_type,
                     color=meta.get("color"),
@@ -107,8 +107,8 @@ class Parser():
                 seen.add(link)
                 link_capacity = 1
                 if "max_link_capacity" in meta:
-                    link_capacity = self.to_int(meta["max_link_capacity"],
-                                                n, "max_link_capacity")
+                    link_capacity = self._to_int(meta["max_link_capacity"],
+                                                 n, "max_link_capacity")
                     if link_capacity < 1:
                         raise ParsingError(n, "capacity is < 1")
                 connections.append(Connection(a, b, link_capacity))
