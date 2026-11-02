@@ -5,6 +5,7 @@ import pygame
 from graph_index import GraphIndex
 from gui import Renderer, Viewport, Playback
 from heuristic import Heuristic
+from models import Graph, Step
 from parser import Parser, ParsingError
 from planner import Planer, PlanningError
 from reservation_table import ReservationTable
@@ -32,6 +33,19 @@ def main() -> int:
     for line in planner.to_turns(routes):
         print(line)
 
+    try:
+        run_gui(graph, routes)
+    except (pygame.error, OSError) as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+    except KeyboardInterrupt:
+        return 130
+    finally:
+        pygame.quit()
+    return 0
+
+
+def run_gui(graph: Graph, routes: list[list[Step]]) -> None:
     pygame.init()
     width, height = 1000, 700
     screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
@@ -74,9 +88,6 @@ def main() -> int:
         playback.update(dt)
         renderer.draw(screen, playback)
         pygame.display.flip()
-
-    pygame.quit()
-    return 0
 
 
 if __name__ == "__main__":

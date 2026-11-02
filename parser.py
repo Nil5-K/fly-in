@@ -42,8 +42,11 @@ class Parser():
         start: str = ""
         end: str = ""
 
-        with open(self._file_path, encoding="utf-8") as file:
-            lines = file.readlines()
+        try:
+            with open(self._file_path, encoding="utf-8") as file:
+                lines = file.readlines()
+        except UnicodeDecodeError:
+            raise ParsingError(0, "file is not valid UTF-8 text")
 
         for n, raw in enumerate(lines, start=1):
             line = raw.split("#")[0].strip()
