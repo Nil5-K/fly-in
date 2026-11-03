@@ -1,7 +1,7 @@
 import heapq
 
 from heuristic import Heuristic
-from models.models import Edge, Graph, Step
+from models.models import Edge, Graph, Step, ZoneType
 from reservation_table import ReservationTable
 
 State = tuple[str, int]
@@ -32,18 +32,20 @@ class TimeAStar():
         if start_h is None:
             return None
         came_from: dict[State, tuple[State, Edge | None]] = {}
-        seen: set[State] = {start}
-        pq: list[tuple[int, int, str]] = [(start_h, 0, start[0])]
+        best_bad: dict[State, int] = {start: 0}
+        pq: list[tuple[int, int, int, str]] = [(start_h, 0, 0, start[0])]
         while pq:
-            _, t, zone = heapq.heappop(pq)
+            _, bad, t, zone = heapq.heappop(pq)
+            if bad > best_bad[(zone, t)]:
+                continue
             if zone == self.graph.end:
                 return self._reconstruct(came_from, (zone, t))
             if t >= self.max_turn:
                 continue
             for edge in self._moves(zone, t):
-                self._push(pq, seen, came_from, (zone, t), edge)
+                self._push(pq, best_bad, came_from, (zone, t), bad, edge)
             if self.table.can_wait(zone, t):
-                self._push(pq, seen, came_from, (zone, t), None)
+                self._push(pq, best_bad, came_from, (zone, t), bad, None)
         return None
 
     def _moves(self, zone: str, t: int) -> list[Edge]:
@@ -51,10 +53,11 @@ class TimeAStar():
 
     def _push(
         self,
-        pq: list[tuple[int, int, str]],
-        seen: set[State],
+        pq: list[tuple[int, int, int, str]],
+        best_bad: dict[State, int],
         came_from: dict[State, tuple[State, Edge | None]],
         current: State,
+        bad: int,
         edge: Edge | None,
     ) -> None:
         zone, t = current
@@ -62,12 +65,14 @@ class TimeAStar():
             nxt: State = (zone, t + 1)
         else:
             nxt = (edge.target, t + edge.cost)
+            if self.graph.zones[edge.target].zone_type != ZoneType.PRIORITY:
+                bad += 1
         h = self._heuristic.h(nxt[0])
-        if h is None or nxt in seen:
+        if h is None or (nxt in best_bad and best_bad[nxt] <= bad):
             return
-        seen.add(nxt)
+        best_bad[nxt] = bad
         came_from[nxt] = (current, edge)
-        heapq.heappush(pq, (nxt[1] + h, nxt[1], nxt[0]))
+        heapq.heappush(pq, (nxt[1] + h, bad, nxt[1], nxt[0]))
 
     @staticmethod
     def _reconstruct(
