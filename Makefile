@@ -6,7 +6,7 @@
 #    By: nkerstin <nkerstin@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/10/15 15:20:46 by nkerstin          #+#    #+#              #
-#    Updated: 2026/10/23 18:45:57 by nkerstin         ###   ########.fr        #
+#    Updated: 2026/11/03 15:17:37 by nkerstin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,17 +24,19 @@ MYPYFLAGS  = --warn-return-any --warn-unused-ignores --ignore-missing-imports \
 
 GREEN      = \033[0;32m
 RED        = \033[0;31m
+YELLOW     = \033[0;33m
+RESET      = \033[0m
+
+define BAR
+printf "$(1)$(2)$(RESET)\n"; printf "$(1)["; \
+for i in $$(seq 1 20); do printf "■"; sleep 0.03; done; \
+printf "] 100%%$(RESET)\n"
+endef
 
 .PHONY: install run debug clean fclean lint lint-strict test
 
 run:
-	@echo "$(Y)Compiling fly-in...$(RESET)"
-	@printf "$(G)["
-	@for i in $$(seq 1 20); do \
-		printf "■"; \
-		sleep 0.03; \
-	done
-	@printf "] 100%%$(RESET)\n"
+	@$(call BAR,$(YELLOW),Compiling fly-in...)
 	@$(VPY) $(MAIN) $(MAP)
 
 install:
@@ -43,13 +45,7 @@ install:
 	@$(VPY) -m pip install -r requirements.txt
 
 debug:
-	@echo "$(RED)Debugging...$(RESET)"
-	@printf "$(G)["
-	@for i in $$(seq 1 20); do \
-		printf "■"; \
-		sleep 0.03; \
-	done
-	@printf "] 100%%$(RESET)\n"
+	@$(call BAR,$(RED),Debugging...)
 	$(VPY) -m pdb $(MAIN) $(MAP)
 
 lint:
@@ -61,23 +57,11 @@ lint-strict:
 	$(MYPY) --strict
 
 test:
-	@echo "$(GREEN)Compiling tests...$(RESET)"
-	@printf "$(G)["
-	@for i in $$(seq 1 20); do \
-		printf "■"; \
-		sleep 0.03; \
-	done
-	@printf "] 100%%$(RESET)\n"
+	@$(call BAR,$(GREEN),Compiling tests...)
 	@$(VPY) -m pytest -q
 
 clean:
-	@echo "$(RED)Deleting...$(RESET)"
-	@printf "$(G)["
-	@for i in $$(seq 1 20); do \
-		printf "■"; \
-		sleep 0.03; \
-	done
-	@printf "] 100%%$(RESET)\n"
+	@$(call BAR,$(RED),Deleting...)
 	@find . -path ./$(VENV) -prune -o -name "__pycache__" -type d -exec rm -rf {} +
 	@rm -rf .mypy_cache .pytest_cache
 
