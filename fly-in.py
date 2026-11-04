@@ -12,7 +12,13 @@ from reservation_table import ReservationTable
 
 
 class App():
+    """Run the planner on a map file and show the result in a window."""
     def __init__(self, argv: list[str]) -> None:
+        """Store the command line arguments.
+
+        Args:
+            argv: Command line arguments, including the program name.
+        """
         self._argv = argv
         self._screen: pygame.Surface
         self._viewport: Viewport
@@ -21,6 +27,12 @@ class App():
         self._running = False
 
     def run(self) -> int:
+        """Parse the map, plan the routes, print them and open the GUI.
+
+        Returns:
+            Exit code: 0 on success, 1 on a usage, parsing, planning or
+            display error, 130 on keyboard interrupt.
+        """
         if len(self._argv) != 2:
             print(f"usage: {self._argv[0]} <map_file>", file=sys.stderr)
             return 1
@@ -54,6 +66,15 @@ class App():
         return 0
 
     def _run_gui(self, graph: Graph, routes: list[list[Step]]) -> None:
+        """Open the window and run the main loop until it is closed.
+
+        The total number of turns is the latest arrival time over all
+        drones: max(step.t + edge.cost).
+
+        Args:
+            graph: The parsed map.
+            routes: One list of steps per drone.
+        """
         pygame.init()
         width, height = 1000, 700
         self._screen = pygame.display.set_mode(
@@ -80,6 +101,11 @@ class App():
             pygame.display.flip()
 
     def _handle_event(self, event: pygame.event.Event) -> None:
+        """React to a single pygame event.
+
+        Args:
+            event: Quit, escape, resize, space or left click.
+        """
         if event.type == pygame.QUIT:
             self._running = False
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -92,6 +118,11 @@ class App():
             self._handle_click(event.pos)
 
     def _handle_click(self, pos: tuple[int, int]) -> None:
+        """Run the playback action of the HUD button at a click.
+
+        Args:
+            pos: Mouse position in screen pixels.
+        """
         action = self._renderer.hud.button_at(self._screen, pos)
         if action == "play":
             self._playback.toggle()

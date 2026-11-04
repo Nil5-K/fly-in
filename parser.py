@@ -2,18 +2,44 @@ from models import Zone, Connection, Graph, ZoneType, Role
 
 
 class ParsingError(Exception):
+    """Raised for an invalid map file, with the line number."""
     def __init__(self, line_number: int, msg: str) -> None:
+        """Build the error message.
+
+        Args:
+            line_number: Line of the problem in the file.
+            msg: Description of the problem.
+        """
         self.line_number = line_number
         self.msg = msg
         super().__init__(f"line {line_number}: {msg}")
 
 
 class Parser():
+    """Read a map file and build a Graph."""
     def __init__(self, file_path: str) -> None:
+        """Store the path of the map file.
+
+        Args:
+            file_path: Path of the map file.
+        """
         self._file_path = file_path
 
     @staticmethod
     def _to_int(text: str, line_number: int, key: str) -> int:
+        """Convert text to an int.
+
+        Args:
+            text: Text to convert.
+            line_number: Line, for errors.
+            key: Name of the value, for errors.
+
+        Returns:
+            The integer value.
+
+        Raises:
+            ParsingError: If text is not a number.
+        """
         try:
             return int(text)
         except ValueError:
@@ -21,6 +47,18 @@ class Parser():
 
     @staticmethod
     def _parse_meta(text: str, line_number: int) -> tuple[str, dict[str, str]]:
+        """Split 'name x y [key=value ...]' into core and metadata.
+
+        Args:
+            text: The part of the line after the colon.
+            line_number: Line, for errors.
+
+        Returns:
+            The text before the brackets and a dict of the metadata.
+
+        Raises:
+            ParsingError: If the brackets or a pair are malformed.
+        """
         if "[" not in text:
             return text.strip(), {}
         if not text.endswith("]"):
@@ -35,6 +73,19 @@ class Parser():
         return left.strip(), meta
 
     def parse(self) -> Graph:
+        """Read the file and check every line.
+
+        Comments start with '#'. nb_drones must come first. Zone names must
+        be unique and contain no '-', connections must link known zones
+        and may not repeat, and there must be one start and one end hub.
+
+        Returns:
+            The Graph described by the file.
+
+        Raises:
+            ParsingError: If the file content is invalid.
+            OSError: If the file cannot be read.
+        """
         nb_drones = 0
         zones: dict[str, Zone] = {}
         connections: list[Connection] = []

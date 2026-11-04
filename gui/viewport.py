@@ -2,8 +2,17 @@ from models import Graph
 
 
 class Viewport():
+    """Convert map coordinates to screen pixels."""
     def __init__(self, graph: Graph, width: int, height: int,
                  padding: int = 60) -> None:
+        """Find the map bounds and fit them to the window.
+
+        Args:
+            graph: The parsed map.
+            width: Window width in pixels.
+            height: Window height in pixels.
+            padding: Empty border around the map in pixels.
+        """
         self._width = width
         self._height = height
         self._padding = padding
@@ -18,6 +27,16 @@ class Viewport():
         self.resize(width, height)
 
     def resize(self, width: int, height: int) -> None:
+        """Recompute scale and offsets for a new window size.
+
+        The scale is min(avail_w / span_x, avail_h / span_y), so the map
+        fits in both directions. The offsets center the map in the free
+        space.
+
+        Args:
+            width: Window width in pixels.
+            height: Window height in pixels.
+        """
         self._width = width
         self._height = height
         span_x = max(self._max_x - self._min_x, 1)
@@ -32,6 +51,17 @@ class Viewport():
                                           self.scale) / 2
 
     def to_screen(self, x: float, y: float) -> tuple[int, int]:
+        """Convert a map position to a pixel position.
+
+        px = offset_x + (x - min_x) * scale, and the same for y.
+
+        Args:
+            x: Map x coordinate.
+            y: Map y coordinate.
+
+        Returns:
+            Rounded (x, y) in pixels.
+        """
         px = self._offset_x + (x - self._min_x) * self.scale
         py = self._offset_y + (y - self._min_y) * self.scale
         return (round(px), round(py))

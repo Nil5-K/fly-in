@@ -5,17 +5,35 @@ from models import Graph, Role
 
 
 class MapRenderer():
+    """Draw the zones and the connections."""
     def __init__(self, graph: Graph, viewport: Viewport,
                  font: pygame.font.Font) -> None:
+        """Store the drawing data.
+
+        Args:
+            graph: The parsed map.
+            viewport: Map to screen conversion.
+            font: Font for the zone names.
+        """
         self._graph = graph
         self._viewport = viewport
         self._font = font
 
     def draw(self, surface: pygame.Surface) -> None:
+        """Draw the connections, then the zones on top.
+
+        Args:
+            surface: Surface to draw on.
+        """
         self._draw_connections(surface)
         self._draw_zones(surface)
 
     def _draw_connections(self, surface: pygame.Surface) -> None:
+        """Draw a line between the two zones of each connection.
+
+        Args:
+            surface: Surface to draw on.
+        """
         for conn in self._graph.connections:
             zone_a = self._graph.zones[conn.zone_a]
             zone_b = self._graph.zones[conn.zone_b]
@@ -24,6 +42,15 @@ class MapRenderer():
             pygame.draw.line(surface, (120, 120, 120), start, end)
 
     def _draw_zones(self, surface: pygame.Surface) -> None:
+        """Draw the zones as circles with their names.
+
+        The radius is 0.3 * scale limited to 6..20 pixels. Start and end
+        zones get a white ring. A name goes below its zone, or above if
+        that spot overlaps another name.
+
+        Args:
+            surface: Surface to draw on.
+        """
         radius = max(6, min(20, round(self._viewport.scale * 0.3)))
         placed: list[pygame.Rect] = []
         labels: list[tuple[pygame.Surface, pygame.Rect]] = []
